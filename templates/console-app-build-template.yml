@@ -35,7 +35,7 @@ jobs:
     variables:
       - group: CodeSigning
       - name: solution
-        value: 'Durable.Tester/*.sln'
+        value: 'src/Durable.Tester/*.sln'
       - name: buildPlatform
         value: 'Any CPU'
       - name: exeName

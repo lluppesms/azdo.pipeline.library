@@ -52,19 +52,21 @@ jobs:
     continueOnError: true
 
   - bash: |
-      echo "subscriptionName=$(subscriptionName)"
+      echo "serviceConnectionName=$(serviceConnectionName)"
       echo "resourceGroupName=$(resourceGroupName)"
       echo "environmentNameUpper=$(environmentNameUpper)"
       echo "environmentNameLower=$(environmentNameLower)"
       echo "location=$(location)"
       echo "appName=$(appName)"
       echo "appNameLower=$(appNameLower)"
+      echo "runDateTime=$(runDateTime)"
+      echo "runDateTimeZ=$(runDateTimeZ)"
       echo "templateFile=$(templateFile)"
       echo "compiledJsonFile=$(compiledJsonFile)"
       echo "Resource Group Command:"
       echo "  az group create --name $(resourceGroupName) --location $(location) --tags LastDeployed=$(runDateTime) Application=$(appName) Environment=$(environmentNameUpper)"
       echo "Bicep Deploy Sample Command:"
-      echo "  az deployment group create -n main-deploy-$(runDateTimeZ) --resource-group $(resourceGroupName) --template-file 'main.bicep' --parameters environmentCode $(environmentNameLower) location $(location) appName $(appName) storageSku $(storageSku) functionAppSku $(functionAppSku) functionAppSkuFamily $(functionAppSkuFamily) functionAppSkuTier $(functionAppSkuTier) keyVaultOwnerUserId $(keyVaultOwnerUserId) keyVaultOwnerUserId2 $(keyVaultOwnerUserId2) runDateTime $(runDateTime)"
+      echo "  az deployment group create -n main-deploy-$(runDateTimeZ) --resource-group $(resourceGroupName) --template-file 'main.bicep' --parameters environmentCode $(environmentNameLower) location $(location) appName $(appName) storageSku $(storageSku) functionAppSku $(functionAppSku) functionAppSkuFamily $(functionAppSkuFamily) functionAppSkuTier $(functionAppSkuTier) keyVaultOwnerUserId $(keyVaultOwnerUserId) runDateTime $(runDateTime)"
     displayName: 'Display Variables'
     continueOnError: true
 
@@ -78,7 +80,7 @@ jobs:
   - task: AzureCLI@2
     displayName: 'Create Resource Group'
     inputs:
-      azureSubscription: $(subscriptionName)
+      azureSubscription: $(serviceConnectionName)
       scriptType: bash
       scriptLocation: inlineScript
       inlineScript: az group create --name $(resourceGroupName) --location $(location) --tags LastDeployed=$(runDateTime) Application=$(appName) Environment=$(environmentNameUpper)
@@ -92,8 +94,9 @@ jobs:
         -environmentCode $(environmentNameLower)
         -keyVaultOwnerUserId $(keyVaultOwnerUserId)
         -location $(location)
+        -runDateTime $(runDateTime)
       deploymentScope: 'Resource Group'
-      azureResourceManagerConnection: '$(subscriptionName)'
+      azureResourceManagerConnection: $(serviceConnectionName)
       action: 'Create Or Update Resource Group'
       resourceGroupName: '$(resourceGroupName)'
       location: '$(location)'

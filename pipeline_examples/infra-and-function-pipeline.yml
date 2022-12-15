@@ -23,8 +23,16 @@ trigger:
   #     - '**/*.md'
 
 # ----------------------------------------------------------------------------------------------------
+resources:
+  repositories:
+  - repository: pipelineLibrary # Internal name for this repo, append @thisName to the template path
+    type: github
+    endpoint: lluppesms   # The name of the service connection in AzDO that has access to the GitHub repo
+    name: lluppesms/azdo.pipeline.library # The org/name of the GitHub repo with the pipeline templates
+
+# ----------------------------------------------------------------------------------------------------
 stages:
-- template: ../pipes/infra-and-function-pipe.yml
+- template: /pipes/infra-and-function-pipe.yml@pipelineLibrary
   parameters:
     variableGroupName: 'FunctionDemo'
     environments: ['DEMO']  # ['DEV','PROD'] ['DEV','QA'] or ['DEV','QA','PROD']

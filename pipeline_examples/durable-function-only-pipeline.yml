@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------------------------
 # Pipeline to deploy a Function App
 # ----------------------------------------------------------------------------------------------------
-# Note: This pipeline needs a variable group "FunctionDemo"
+# Note: This pipeline needs a variable group "DurableDemo"
 #  See ../Docs/Create-Variable-Group.md for details
 # ----------------------------------------------------------------------------------------------------
 name: $(date:yyyy).$(date:MM).$(date:dd)$(rev:.r)
@@ -36,6 +36,5 @@ resources:
 stages:
 - template: /pipes/function-only-pipe.yml@pipelineLibrary
   parameters:
-    variableGroupName: 'FunctionDemo'
-    environments: ['DEMO']  # ['DEV','PROD'] ['DEV','QA'] or ['DEV','QA','PROD']
-    projectDirectory: 'src/FunctionApp'
+    variableGroupName: 'DurableDemo'
+    environments: ['DEV','QA','PROD']  # ['DEMO'] ['DEV','PROD'] ['DEV','QA'] or ['DEV','QA','PROD']
