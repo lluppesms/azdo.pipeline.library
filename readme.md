@@ -2,6 +2,8 @@
 
 This repository contains a collection of Azure Pipelines, Pipes, and Templates that I have created and used in my own projects.  I hope that you find them useful as well.
 
+---
+
 There are three main folders of resources in this repository:
 
 - The **pipeline_examples** folder contains the example main YML files that you will want to copy to your projects and modify. Hopefully, all of the other files will be referenced and not copied to your projects.
@@ -14,10 +16,16 @@ There are three main folders of resources in this repository:
 
 ## Pipeline Examples
 
-The YML pipeline examples have a step in them that adds this repo as a repository in your pipeline.
-It checks out this repo, then you can reference the pipes and templates in this repo.
+The YML pipeline examples have a step in them that adds a second repo to your pipeline.
+It checks out the repo, then references the pipes and templates from this second repo.
+
+### Fork This Repo
+
+- To use these examples you will need to fork this repo and customize the pipelines to fit your needs.
 
 ### Check Out Example
+
+- Add this checkout to your pipelines and change the links to point to your forked repo.
 
 ```yaml
 resources:
@@ -30,7 +38,7 @@ resources:
 
 ### Usage Example
 
-When you want to use a template from the library, reference it with the path to the template followed by an '@' and the name of the repository you added in the checkout step.
+To use a template from the library, reference it with the path to the template followed by an '@' and the internal name of the repository you added in the checkout step.
 
 ```yaml
 - template: /pipes/infra-only-pipe.yml@pipelineLibrary
