@@ -1,36 +1,40 @@
 # ------------------------------------------------------------------------------------------------------------------------
-# Pipeline Template to build and deploy Application Only
+# Pipeline Template to build application and deploy it to multiple optional environments
 # ------------------------------------------------------------------------------------------------------------------------
 parameters:
 - name: environments
   type: object
-  default: ['DEV']
+  default: ['DEV'] # or ['DEV','QA'] or ['DEV','QA','PROD'] or ['DEV','QA','STG','PROD']
 - name: variableGroupName
   default: 'myVariableGroupName'
-- name: projectDirectory
-  default: 'src/myProjectDirectory'
+- name: folderName
+  default: ''
+- name: projectName
+  default: ''
+- name: webAppName
+  default: ''
 
 # ----------------------------------------------------------------------------------------------------
 stages:
-- stage: BuildApplication
-  displayName: Build Application
+- stage: BuildWebApp
+  displayName: Build Web App
   jobs:
-  #- template: ../templates/secure-devops-template.yml
-  #  parameters:
-  #    variableGroupName: ${{ parameters.variableGroupName }}
-  #    environmentName: 'DEV'
-  - template: ../templates/build-function-template.yml
+  - template: templates/build-website-template.yml
     parameters:
       variableGroupName: ${{ parameters.variableGroupName }}
       environmentName: 'DEV'
-      projectDirectory: ${{ parameters.projectDirectory }}
+      folderName: ${{ parameters.folderName }}
+      projectName: ${{ parameters.projectName }}
 
 # ----------------------------------------------------------------------------------------------------
 - ${{ each environmentName in parameters.environments }} :
-  - stage: DeployApp${{ environmentName }}
-    displayName: Deploy ${{ environmentName }} Application
+  - stage: DeployWebsite${{ environmentName }}
+    displayName: Deploy ${{ environmentName }} Website
     jobs:
-    - template: ../templates/deploy-function-template.yml
+    - template: templates/deploy-website-template.yml
       parameters:
         variableGroupName: ${{ parameters.variableGroupName }}
         environmentName: ${{ environmentName }}
+        folderName: ${{ parameters.folderName }}
+        projectName: ${{ parameters.projectName }}
+        webAppName: ${{ parameters.webAppName }}

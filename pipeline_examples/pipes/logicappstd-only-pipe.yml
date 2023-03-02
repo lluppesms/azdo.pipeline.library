@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------------------------------------------------
-# Pipeline Template to deploy Azure Resources Only
+# Pipeline Template to build and deploy Application Only
 # ------------------------------------------------------------------------------------------------------------------------
 parameters:
 - name: environments
@@ -10,19 +10,25 @@ parameters:
 
 # ----------------------------------------------------------------------------------------------------
 stages:
-- stage: ScanApplication
-  displayName: Scan Application
+- stage: BuildApplication
+  displayName: Build Application
   jobs:
-  - template: ../templates/secure-devops-template.yml
+  #- template: templates/secure-devops-template.yml
+  #  parameters:
+  #    variableGroupName: ${{ parameters.variableGroupName }}
+  #    environmentName: 'DEV'
+
+  - template: templates/build-logicstd-template.yml
     parameters:
       variableGroupName: ${{ parameters.variableGroupName }}
-      environmentName: 'DEV'
+      environmentName: 'DEMO'
 
+# ----------------------------------------------------------------------------------------------------
 - ${{ each environmentName in parameters.environments }} :
-  - stage: CreateInfrastructure${{ environmentName }}
-    displayName: ${{ environmentName }} Infrastructure
+  - stage: DeployApp${{ environmentName }}
+    displayName: Deploy ${{ environmentName }} Application
     jobs:
-    - template: ../templates/create-infra-template.yml
+    - template: templates/deploy-logicstd-template.yml
       parameters:
         variableGroupName: ${{ parameters.variableGroupName }}
         environmentName: ${{ environmentName }}

@@ -13,12 +13,12 @@ stages:
 - stage: BuildApplication
   displayName: Build Application
   jobs:
-  #- template: ../templates/secure-devops-template.yml
+  #- template: templates/secure-devops-template.yml
   #  parameters:
   #    variableGroupName: ${{ parameters.variableGroupName }}
   #    environmentName: 'DEV'
 
-  - template: ../templates/build-logicstd-template.yml
+  - template: templates/build-logicstd-template.yml
     parameters:
       variableGroupName: ${{ parameters.variableGroupName }}
       environmentName: 'DEMO'
@@ -30,7 +30,7 @@ stages:
     dependsOn: BuildApplication
     condition: succeeded('BuildApplication')
     jobs:
-    - template: ../templates/create-infra-template.yml
+    - template: templates/create-infra-template.yml
       parameters:
         variableGroupName: ${{ parameters.variableGroupName }}
         environmentName: ${{ environmentName }}
@@ -40,7 +40,7 @@ stages:
     dependsOn: Deploy${{ environmentName }}Infra
     condition: succeeded('Deploy${{ environmentName }}Infra')
     jobs:
-    - template: ../templates/deploy-logicstd-template.yml
+    - template: templates/deploy-logicstd-template.yml
       parameters:
         variableGroupName: ${{ parameters.variableGroupName }}
         environmentName: ${{ environmentName }}

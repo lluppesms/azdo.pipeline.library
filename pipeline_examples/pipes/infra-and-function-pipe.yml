@@ -4,50 +4,45 @@
 parameters:
 - name: environments
   type: object
-  default: ['DEV'] # or ['DEV','QA'] or ['DEV','QA','PROD'] or ['DEV','QA','STG','PROD']
+  default: ['DEV']
 - name: variableGroupName
   default: 'myVariableGroupName'
-- name: folderName
-  default: ''
-- name: projectName
-  default: ''
-- name: webAppName
-  default: ''
+- name: projectDirectory
+  default: 'src/myProjectDirectory'
 
 # ----------------------------------------------------------------------------------------------------
 stages:
 - stage: BuildApplication
-  displayName: Build App
+  displayName: Build Application
   jobs:
-  - template: ../templates/build-website-template.yml
+  #- template: templates/secure-devops-template.yml
+  #  parameters:
+  #    variableGroupName: ${{ parameters.variableGroupName }}
+  #    environmentName: 'DEV'
+  - template: templates/build-function-template.yml
     parameters:
       variableGroupName: ${{ parameters.variableGroupName }}
       environmentName: 'DEV'
-      folderName: ${{ parameters.folderName }}
-      projectName: ${{ parameters.projectName }}
+      projectDirectory: ${{ parameters.projectDirectory }}
 
 # ----------------------------------------------------------------------------------------------------
 - ${{ each environmentName in parameters.environments }} :
-  - stage: Deploy${{ environmentName }}Infra
-    displayName: ${{ environmentName }} Infra
+  - stage: CreateInfrastructure${{ environmentName }}
+    displayName: ${{ environmentName }} Infrastructure
     dependsOn: BuildApplication
     condition: succeeded('BuildApplication')
     jobs:
-    - template: ../templates/create-infra-template.yml
+    - template: templates/create-infra-template.yml
       parameters:
         variableGroupName: ${{ parameters.variableGroupName }}
         environmentName: ${{ environmentName }}
-        webAppName: ${{ parameters.webAppName }}
 
   - stage: Deploy${{ environmentName }}App
-    displayName: ${{ environmentName }} App
-    dependsOn: Deploy${{ environmentName }}Infra
-    condition: succeeded('Deploy${{ environmentName }}Infra')
+    displayName: Deploy ${{ environmentName }} App
+    dependsOn: CreateInfrastructure${{ environmentName }}
+    condition: succeeded('CreateInfrastructure${{ environmentName }}')
     jobs:
-    - template: ../templates/deploy-website-template.yml
+    - template: templates/deploy-function-template.yml
       parameters:
         variableGroupName: ${{ parameters.variableGroupName }}
         environmentName: ${{ environmentName }}
-        folderName: ${{ parameters.folderName }}
-        projectName: ${{ parameters.projectName }}
-        webAppName: ${{ parameters.webAppName }}

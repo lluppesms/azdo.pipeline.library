@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------------------------------------------------
-# Pipeline to build Test Utility; compiles for both Windows (x64) and Linux; copies EXE to storage for downloading ease
+# Pipeline Template to build and deploy Application Only
 # ------------------------------------------------------------------------------------------------------------------------
 parameters:
 - name: environments
@@ -7,28 +7,30 @@ parameters:
   default: ['DEV']
 - name: variableGroupName
   default: 'myVariableGroupName'
+- name: projectDirectory
+  default: 'src/myProjectDirectory'
 
-# ------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
 stages:
-- stage: BuildTester
-  displayName: Build Tester
+- stage: BuildApplication
+  displayName: Build Application
   jobs:
-  - template: ../templates/secure-devops-template.yml
+  #- template: templates/secure-devops-template.yml
+  #  parameters:
+  #    variableGroupName: ${{ parameters.variableGroupName }}
+  #    environmentName: 'DEV'
+  - template: templates/build-function-template.yml
     parameters:
       variableGroupName: ${{ parameters.variableGroupName }}
       environmentName: 'DEV'
-
-  - template: ../templates/console-app-build-template.yml
-    parameters:
-      variableGroupName: ${{ parameters.variableGroupName }}
-      environmentName: 'DEV'
+      projectDirectory: ${{ parameters.projectDirectory }}
 
 # ----------------------------------------------------------------------------------------------------
 - ${{ each environmentName in parameters.environments }} :
-  - stage: DeployTester${{ environmentName }}
-    displayName: Deploy ${{ environmentName }} Tester
+  - stage: DeployApp${{ environmentName }}
+    displayName: Deploy ${{ environmentName }} Application
     jobs:
-    - template: ../templates/console-app-deploy-template.yml
+    - template: templates/deploy-function-template.yml
       parameters:
         variableGroupName: ${{ parameters.variableGroupName }}
         environmentName: ${{ environmentName }}

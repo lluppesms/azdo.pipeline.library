@@ -32,7 +32,7 @@ resources:
 
 # ----------------------------------------------------------------------------------------------------
 stages:
-- template: /pipes/infra-only-pipe.yml@pipelineLibrary
+- template: pipes/infra-only-pipe.yml@pipelineLibrary
   parameters:
     variableGroupName: 'FunctionDemo'
     environments: ['DEMO']  # ['DEV','PROD'] ['DEV','QA'] or ['DEV','QA','PROD']

@@ -29,7 +29,7 @@ resources:
 
 # ----------------------------------------------------------------------------------------------------
 stages:
-- template: /pipes/infra-and-website-pipe.yml@pipelineLibrary
+- template: pipes/infra-and-website-pipe.yml@pipelineLibrary
   parameters:
     variableGroupName: 'BlazorDemo'
     folderName: 'Blazor.Server.Demo'

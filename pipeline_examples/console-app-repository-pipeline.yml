@@ -1,24 +1,25 @@
 # ------------------------------------------------------------------------------------------------------------------------
-# Pipeline to build and deploy Website Only
-# See ../Docs/Create-Variable-Group.md for info about variable group "BlazorServerDemo"
+# Pipeline to build a console app; compiles for both Windows (x64) and Linux; copies EXE to storage for downloading ease
 # ------------------------------------------------------------------------------------------------------------------------
-name: $(Build.DefinitionName).$(date:yyyy).$(date:MM).$(date:dd)$(rev:.r)
-
+# Note: This pipeline needs a variable group
+#  See ../Docs/Create-Variable-Group.md for details
+# ------------------------------------------------------------------------------------------------------------------------
 trigger:
-  batch: true
   branches:
-    include:
-    - main
+    include: 
+      - main
   paths:
     include:
-      - 'Blazor.Server.Demo/*'
+      - ConsoleAppProjectFolder
     exclude: 
       - '**/*.yml'
+      - '**/*.yaml'
       - '**/*.bicep'
-      - '**/*.md'
 
 pool:
-  vmImage: windows-latest
+  vmImage: 'windows-latest'
+
+name: $(date:yyyy).$(date:MM).$(date:dd)$(rev:.r)
 
 # ----------------------------------------------------------------------------------------------------
 resources:
@@ -30,10 +31,7 @@ resources:
 
 # ----------------------------------------------------------------------------------------------------
 stages:
-- template: pipes/website-only-pipe.yml@pipelineLibrary
+- template: pipes/console-app-pipe.yml@pipelineLibrary
   parameters:
-    variableGroupName: 'BlazorDemo'
-    folderName: 'Blazor.Server.Demo'
-    projectName: 'Blazor.Server.Demo'
-    webAppName: 'bsa'
+    variableGroupName: 'MyVariableGroupName'
     environments: ['DEMO']  # ['DEV','PROD'] ['DEV','QA'] or ['DEV','QA','PROD']

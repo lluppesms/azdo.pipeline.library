@@ -1,0 +1,55 @@
+# ------------------------------------------------------------------------------------------------------------------------
+# Pipeline to build Test Utility; compiles for both Windows (x64) and Linux; copies EXE to storage for downloading ease
+# ------------------------------------------------------------------------------------------------------------------------
+parameters:
+- name: environments
+  type: object
+  default: ['DEV']
+- name: variableGroupName
+  default: 'myVariableGroupName'
+- name: projectPath
+  default: 'src/myFolderName/'
+- name: solutionName
+  default: 'myProjectName.sln'
+- name: projectName
+  default: 'myProjectName.csproj'
+- name: exeName
+  default: 'myExeName'
+- name: folderName
+  default: 'myFolderName'
+- name: runDevSecOpsScan
+  default: 'true'
+- name: runPsRuleScan
+  default: 'true'
+
+# ------------------------------------------------------------------------------------------------------------------------
+stages:
+- stage: BuildTester
+  displayName: Build Tester
+  jobs:
+  - ${{ if or(eq(lower(parameters.runDevSecOpsScan), 'true'), eq(lower(parameters.runPsRuleScan), 'true')) }}:
+    - template: templates/scan-code-template.yml
+      parameters:
+        environmentName: 'DEV'
+        runDevSecOpsScan: ${{ parameters.runDevSecOpsScan }}
+        runPsRuleScan: ${{ parameters.runPsRuleScan }}
+
+  - template: templates/console-app-build-template.yml
+    parameters:
+      variableGroupName: ${{ parameters.variableGroupName }}
+      environmentName: 'DEV'
+      projectPath: ${{ parameters.projectPath }}
+      solutionName: ${{ parameters.solutionName }}
+      projectName: ${{ parameters.projectName }}
+      exeName: ${{ parameters.exeName }}
+      folderName: ${{ parameters.folderName }}
+
+# ----------------------------------------------------------------------------------------------------
+- ${{ each environmentName in parameters.environments }} :
+  - stage: DeployTester${{ environmentName }}
+    displayName: Deploy ${{ environmentName }} Tester
+    jobs:
+    - template: templates/console-app-deploy-template.yml
+      parameters:
+        variableGroupName: ${{ parameters.variableGroupName }}
+        environmentName: ${{ environmentName }}

@@ -41,7 +41,7 @@ resources:
 To use a template from the library, reference it with the path to the template followed by an '@' and the internal name of the repository you added in the checkout step.
 
 ```yaml
-- template: /pipes/infra-only-pipe.yml@pipelineLibrary
+- template: pipes/infra-only-pipe.yml@pipelineLibrary
 ```
 
 ---
