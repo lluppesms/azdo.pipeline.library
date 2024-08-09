@@ -1,14 +1,12 @@
 # ------------------------------------------------------------------------------------------------------------------------
 # Pipeline to deploy Azure Resources Only
-# ------------------------------------------------------------------------------------------------------------------------
-# Note: This pipeline needs a variable group "FunctionDemo"
-#  See ../Docs/Create-Variable-Group.md for details
+# See readme file for info about the contents of the variable group
 # ------------------------------------------------------------------------------------------------------------------------
 name: $(date:yyyy).$(date:MM).$(date:dd)$(rev:.r)
 pool:
   vmImage: ubuntu-latest
 variables:
-  - group: FunctionDemo
+  - group: DurableDemo
 
 # ------------------------------------------------------------------------------------------------------------------------
 trigger:
@@ -26,35 +24,37 @@ trigger:
 
 # ----------------------------------------------------------------------------------------------------
 parameters:
-  - name: deployQA
-    displayName: Deploy to QA
-    type: boolean
-    default: false
-  - name: runDevSecOpsScan
-    displayName: Run MS DevSecOps Scan
+  - name: deployToEnvironment
+    displayName: Deploy To
     type: string
     values:
-      - None
-      - Scan_Infra_All_Folders
-    default: None
-  - name: runGHAzDOScan
+      - DEMO
+      - DEV
+      - QA
+      - PROD
+      - MULTIPLE
+    default: DEMO
+  - name: runGHASScan
     displayName: Run GHAS Scan
+    type: boolean
+    default: false
+  - name: runMSDevSecOpsScan
+    displayName: Run MS DevSecOps Scan
     type: boolean
     default: false
 
 # ----------------------------------------------------------------------------------------------------
 stages:
-- ${{ if eq(lower(parameters.deployQA), 'false') }}:
+- ${{ if ne(parameters.deployToEnvironment, 'MULTIPLE') }}:
   - template: pipes/infra-only-pipe.yml
     parameters:
-      variableGroupName: 'FunctionDemo'
-      environments: ['DEV']
-      runDevSecOpsScan: ${{ parameters.runDevSecOpsScan }}
-      runGHAzDOScan: ${{ parameters.runGHAzDOScan }}
-- ${{ if eq(lower(parameters.deployQA), 'true') }}:
+      environments: ['${{ parameters.deployToEnvironment }}']
+      runMSDevSecOpsScan: ${{ parameters.runMSDevSecOpsScan }}
+      runGHASScan: ${{ parameters.runGHASScan }}
+
+- ${{ if eq(parameters.deployToEnvironment, 'MULTIPLE') }}:
   - template: pipes/infra-only-pipe.yml
     parameters:
-      variableGroupName: 'FunctionDemo'
-      environments: ['DEV','QA']
-      runDevSecOpsScan: ${{ parameters.runDevSecOpsScan }}
-      runGHAzDOScan: ${{ parameters.runGHAzDOScan }}
+      environments: ['DEV','PROD']
+      runMSDevSecOpsScan: ${{ parameters.runMSDevSecOpsScan }}
+      runGHASScan: ${{ parameters.runGHASScan }}

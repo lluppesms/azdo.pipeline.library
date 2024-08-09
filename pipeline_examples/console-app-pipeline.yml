@@ -1,37 +1,36 @@
 # ------------------------------------------------------------------------------------------------------------------------
 # Pipeline to build IoT Simulator; compiles for both Windows (x64) and Linux; copies EXE to storage for downloading ease
-# ------------------------------------------------------------------------------------------------------------------------
-# Note: This pipeline needs a variable group "DurableDemo"
-#  See ../Docs/Create-Variable-Group.md for details
+# See readme file for info about variable group "DurableDemo"
 # ------------------------------------------------------------------------------------------------------------------------
 name: $(date:yyyy).$(date:MM).$(date:dd)$(rev:.r)
 pool:
   vmImage: windows-latest
+variables:
+  - group: DurableDemo
 
 # ----------------------------------------------------------------------------------------------------
 trigger:
-  # since this repo has both AzDO and GHA pipelines, nothing is run automatically...
-  - none
-  # batch: true
-  # branches:
-  #   include: 
-  #     - main
-  # paths:
-  #   include:
-  #     - Simulator
-  #   exclude: 
-  #     - '**/*.yml'
-  #     - '**/*.yaml'
-  #     - '**/*.bicep'
+  # - none
+  batch: true
+  branches:
+    include: 
+      - main
+  paths:
+    include:
+      - src/Durable.Tester
+    exclude: 
+      - '**/*.yml'
+      - '**/*.yaml'
+      - '**/*.bicep'
 
 # ----------------------------------------------------------------------------------------------------
 parameters:
-  - name: runDevSecOpsScan
-    displayName: Run MS DevSecOps Scan
+  - name: runGHASScan
+    displayName: Run GHAS Scan
     type: boolean
     default: false
-  - name: runPsRuleScan
-    displayName: Run PSRule Bicep Scan
+  - name: runMSDevSecOpsScan
+    displayName: Run MS DevSecOps Scan
     type: boolean
     default: false
 
@@ -39,12 +38,6 @@ parameters:
 stages:
 - template: pipes/console-app-pipe.yml
   parameters:
-    variableGroupName: 'DurableDemo'
     environments: ['DEV']
-    projectPath: 'src/'
-    folderName: 'Durable.Tester'
-    projectName: 'Durable.Tester.csproj'
-    solutionName: 'Durable.Tester.sln'
-    exeName: 'Durable.Tester'
-    runDevSecOpsScan: ${{ parameters.runDevSecOpsScan }}
-    runPsRuleScan: ${{ parameters.runPsRuleScan }}
+    runMSDevSecOpsScan: ${{ parameters.runMSDevSecOpsScan }}
+    runGHASScan: ${{ parameters.runGHASScan }}

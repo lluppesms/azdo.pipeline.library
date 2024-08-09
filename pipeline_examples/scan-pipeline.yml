@@ -1,43 +1,35 @@
 # ------------------------------------------------------------------------------------------------------------------------
-# Pipeline to build and deploy Azure Resources and Application
-# See readme file for info about the contents of the variable group
+# Pipeline to Run Security Scan
 # ------------------------------------------------------------------------------------------------------------------------
 name: $(date:yyyy).$(date:MM).$(date:dd)$(rev:.r)
 pool:
   vmImage: ubuntu-latest
-variables:
-  - group: DurableDemo
 
 # ------------------------------------------------------------------------------------------------------------------------
 trigger:
-  # since this repo has both AzDO and GHA pipelines, nothing is run automatically...
-  - none
-  # batch: true
-  # branches:
-  #   include:
-  #     - main
-  #   exclude:
-  #     - '**/*.md'
-  # paths:
-  #   include:
-  #     - 'Durable.Demo/*'
+ - none
+
+schedules:
+- cron: '0 12 * * 3'
+  displayName: Scan Every Wednesday
+  branches:
+    include:
+    - main
 
 # ----------------------------------------------------------------------------------------------------
 parameters:
-  - name: deployToEnvironment
-    displayName: Deploy To
+  - name: sourceToScan
+    displayName: Source to Scan
     type: string
     values:
-      - DEMO
-      - DEV
-      - QA
-      - PROD
-      - MULTIPLE
-    default: DEMO
+      - FUNCTION
+      - TESTER
+      - BOTH
+    default: FUNCTION
   - name: runGHASScan
     displayName: Run GHAS Scan
     type: boolean
-    default: false
+    default: true
   - name: runMSDevSecOpsScan
     displayName: Run MS DevSecOps Scan
     type: boolean
@@ -45,16 +37,16 @@ parameters:
 
 # ----------------------------------------------------------------------------------------------------
 stages:
-- ${{ if ne(parameters.deployToEnvironment, 'MULTIPLE') }}:
-  - template: pipes/infra-and-function-pipe.yml
+- ${{ if or(eq(parameters.sourceToScan, 'FUNCTION'), eq(parameters.sourceToScan, 'BOTH')) }}:
+  - template: pipes/scan-code-pipe.yml
     parameters:
-      environments: ['${{ parameters.deployToEnvironment }}']
-      runMSDevSecOpsScan: ${{ parameters.runMSDevSecOpsScan }}
       runGHASScan: ${{ parameters.runGHASScan }}
+      runMSDevSecOpsScan: ${{ parameters.runMSDevSecOpsScan }}
+      codeSection: 'app'
 
-- ${{ if eq(parameters.deployToEnvironment, 'MULTIPLE') }}:
-  - template: pipes/infra-and-function-pipe.yml
+- ${{ if or(eq(parameters.sourceToScan, 'TESTER'), eq(parameters.sourceToScan, 'BOTH')) }}:
+  - template: pipes/scan-code-pipe.yml
     parameters:
-      environments: ['DEV','PROD']
-      runMSDevSecOpsScan: ${{ parameters.runMSDevSecOpsScan }}
       runGHASScan: ${{ parameters.runGHASScan }}
+      runMSDevSecOpsScan: ${{ parameters.runMSDevSecOpsScan }}
+      codeSection: 'console'
